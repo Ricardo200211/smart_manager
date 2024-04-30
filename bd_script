@@ -1,0 +1,191 @@
+create database smartmanager;
+use smartmanager;
+
+create table funcionario(
+id varchar(20) primary key,
+nome varchar(50),
+email varchar(100),
+pass varchar(64),
+is_active char(1) default '1'
+);
+
+create table administrador(
+id int primary key auto_increment,
+id_funcionario varchar(20),
+foreign key (id_funcionario) references funcionario(id)
+);
+
+create table fun_utilizador_recursos(
+id int primary key auto_increment,
+cargo varchar(50),
+id_funcionario varchar(20),
+foreign key (id_funcionario) references funcionario(id)
+);
+
+create table recurso(
+id varchar(20) primary key,
+nome varchar(50),
+descricao varchar(500),
+is_active char(1) default '1'
+);
+
+create table permissao(
+id int primary key auto_increment,
+data datetime,
+id_funcionario varchar(20),
+id_administrador int,
+id_recurso varchar(20),
+foreign key (id_funcionario) references funcionario(id),
+foreign key (id_administrador) references administrador(id),
+foreign key (id_recurso) references recurso(id)
+);
+
+create table pedidos_permissao(
+id int primary key auto_increment,
+data datetime,
+resposta char,
+id_funcionario varchar(20),
+id_administrador int,
+id_recurso varchar(20),
+data_resposta datetime,
+foreign key (id_funcionario) references funcionario(id),
+foreign key (id_administrador) references administrador(id),
+foreign key (id_recurso) references recurso(id)
+);
+
+create table utilizacao_recurso(
+id int primary key auto_increment,
+data datetime,
+id_fun_utilizador_recursos varchar(50),
+id_recurso varchar(20),
+foreign key (id_fun_utilizador_recursos) references fun_utilizador_recursos(id_funcionario),
+foreign key (id_recurso) references recurso(id)
+);
+
+insert into funcionario(id, nome, email, pass) values ("1","Ricardo","ricardo@gmail.com","5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5");
+insert into funcionario(id, nome, email, pass) values ("2","Ricardo_admin","ricardo_admin@gmail.com","5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5");
+insert into funcionario(id, nome, email, pass) values ("fric240007","Ricardo Martins","ricardo.martins@gmail.com","5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5");
+insert into funcionario(id, nome, email, pass) values ("3","Pedro","pedro@gmail.com","5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5");
+insert into fun_utilizador_recursos values (1,"funcionario","1");
+insert into fun_utilizador_recursos(cargo, id_funcionario) values ("funcionario","3");
+INSERT INTO recurso(id, nome, descricao) VALUES( '1','maquina x', 'maquina de x');
+INSERT INTO recurso(id, nome, descricao) VALUES('2','maquina y', 'maquina de y');
+INSERT INTO recurso(id, nome, descricao) VALUES('3','maquina xyz cortadora max 2000 ultra', 'maquina de xyz');
+insert into administrador values('1', '2');
+insert into administrador values('2', 'fric240007');
+insert into permissao values(1 ,'2024-03-28', '1', '1', '1');
+
+
+CREATE VIEW view_permissoes_funcionario AS
+SELECT
+    f.id AS id_funcionario,
+    f.nome AS nome_funcionario,
+    f.email,
+    p.id AS id_permissao,
+    p.data AS data_permissao,
+    a.id AS id_administrador,
+    r.id AS id_recurso,
+    r.nome AS nome_recurso
+FROM funcionario f
+JOIN permissao p ON f.id = p.id_funcionario
+LEFT JOIN administrador a ON p.id_administrador = a.id
+JOIN recurso r ON p.id_recurso = r.id;
+
+CREATE VIEW view_permissoes_simples AS
+SELECT
+    f.id AS id_funcionario,
+    f.nome AS nome_funcionario,
+    r.id AS id_recurso,
+    r.nome AS nome_recurso
+FROM funcionario f
+JOIN permissao p ON f.id = p.id_funcionario
+JOIN recurso r ON p.id_recurso = r.id;
+
+SELECT * FROM view_permissoes_simples;
+
+CREATE VIEW view_status_permissao_recurso AS
+SELECT
+    f.id AS id_funcionario,
+    f.nome AS nome_funcionario,
+    r.id AS id_recurso,
+    r.nome AS nome_recurso,
+    CASE
+        WHEN p.id IS NOT NULL THEN 1
+        ELSE 0
+    END AS tem_permissao,
+    CASE
+        WHEN pp.id IS NOT NULL AND pp.resposta IS NULL THEN 1
+        ELSE 0
+    END AS status_pedido_permissao
+FROM funcionario f
+CROSS JOIN recurso r
+LEFT JOIN permissao p
+ON f.id = p.id_funcionario AND r.id = p.id_recurso
+LEFT JOIN pedidos_permissao pp
+ON f.id = pp.id_funcionario AND r.id = pp.id_recurso AND pp.resposta IS NULL
+WHERE r.is_active = 1;
+
+select * from view_status_permissao_recurso;
+
+CREATE OR REPLACE VIEW view_funcionarios_cargos AS
+SELECT
+    f.id AS funcionario_id,
+    f.nome AS funcionario_nome,
+    f.email AS funcionario_email,
+    fur.cargo AS funcionario_cargo,
+    CASE
+        WHEN a.id IS NOT NULL THEN 'Admin'
+        ELSE 'Funcionário'
+    END AS tipo_funcionario,
+    f.is_active AS funcionario_ativo  -- Adiciona esta linha para mostrar o status ativo/inativo
+FROM
+    funcionario f
+JOIN
+    fun_utilizador_recursos fur ON f.id = fur.id_funcionario
+LEFT JOIN
+    administrador a ON f.id = a.id_funcionario;
+
+
+
+SELECT * FROM view_funcionarios_cargos;
+
+CREATE VIEW view_utilizacao_recursos AS
+SELECT
+    ur.data AS data_utilizacao,
+    f.nome AS nome_funcionario,
+    r.nome AS nome_recurso
+FROM
+    utilizacao_recurso ur
+JOIN
+    funcionario f ON ur.id_fun_utilizador_recursos = f.id
+JOIN
+    recurso r ON ur.id_recurso = r.id;
+
+SELECT * FROM view_utilizacao_recursos;
+
+
+
+
+
+
+
+CREATE VIEW view_resumo_funcionarios AS
+SELECT
+    f.id AS funcionario_id,
+    f.nome AS funcionario_nome,
+    COUNT(DISTINCT p.id) AS total_permissoes,
+    COUNT(DISTINCT pp.id) AS total_pedidos_permissoes
+FROM
+    funcionario f
+JOIN
+    fun_utilizador_recursos fur ON f.id = fur.id_funcionario
+LEFT JOIN
+    permissao p ON f.id = p.id_funcionario
+LEFT JOIN
+    pedidos_permissao pp ON f.id = pp.id_funcionario
+WHERE
+    f.is_active = 1
+GROUP BY
+    f.id, f.nome;
+
+select * from view_resumo_funcionarios
