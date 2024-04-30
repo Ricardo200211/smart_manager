@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dados da Tabela</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='permissoes_funcionario_admin.css') }}">
+</head>
+<body>
+    <div class="logo-container">
+        <img src="../static/images/logo.png" alt="Logo">
+    </div>
+        <div class="main-content">
+        <h1>Permissões de {{ nome }}</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Permissão</th>
+                        <th>Alterar permissão</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for permissao in permissoes %}
+                    <tr>
+                        <td>{{ permissao.nome_r }}</td>
+                        <td>{{ 'Sim' if permissao.permissao == 1 else 'Não' }}</td>
+                        {% if permissao.pedido == 0 and permissao.permissao == 0 %}
+                            <td>
+                                <form action="{{ url_for('adicionar_permissao') }}" method="post">
+                                    <input type="hidden" name="id_recurso" value="{{ permissao.id_r }}">
+                                    <input type="hidden" name="id_funcionario" value="{{ id }}">
+                                    <button type="submit" class="button">Permitir</button>
+                                </form>
+                            </td>
+                        {% endif %}
+                        {% if permissao.pedido == 1 and permissao.permissao == 0 %}
+                            <td>
+                                <form action="{{ url_for('aceitar_permissao') }}" method="post">
+                                    <input type="hidden" name="id_recurso" value="{{ permissao.id_r }}">
+                                    <input type="hidden" name="id_funcionario" value="{{ id }}">
+                                    <button type="submit" name="action" value=1 class="button">Aceitar</button>
+                                    <button type="submit" name="action" value=0 class="button red">Recusar</button>
+                                </form>
+                            </td>
+                        {% endif %}
+                        {% if permissao.pedido == 0 and permissao.permissao == 1 %}
+                            <td>
+                                <form action="{{ url_for('retirar_permissao') }}" method="post">
+                                    <input type="hidden" name="id_recurso" value="{{ permissao.id_r }}">
+                                    <input type="hidden" name="id_funcionario" value="{{ id }}">
+                                    <button type="submit" class="button red">Retirar permissão</button>
+                                </form>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+</body>
+</html>

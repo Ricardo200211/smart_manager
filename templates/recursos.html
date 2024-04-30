@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recursos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='recursos.css') }}">
+</head>
+<body>
+    <div class="logo-container">
+        <img src="../static/images/logo.png" alt="Logo">
+    </div>
+    <div class="main-content">
+        <h1>Recursos</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for recurso in recursos %}
+                <tr>
+                    <td>{{ recurso.id }}</td>
+                    <td>{{ recurso.nome }}</td>
+                    <td>{{ recurso.descricao }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="button-container">
+            <button onclick="window.location.href='/abrir_criar_recurso'" class="button">Criar Recurso</button>
+        </div>
+    </div>
+</body>
+</html>

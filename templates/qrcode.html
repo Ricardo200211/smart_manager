@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-Vindo - Gestão de Recursos</title>
+    <script src="{{ url_for('static', filename='html5-qrcode.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='qrcode.css') }}">
+</head>
+<body>
+    <div class="voltar-container">
+        <a href="/main.html"><img src="../static/images/back.png" alt="Back"></a>
+    </div>
+    <div class="logo-container">
+        <img src="../static/images/logo.png">
+    </div>
+    <div class="welcome-container">
+        <button id="start-scanner">Ler QRCode</button>
+        <div id="reader" style="display: none;"></div>
+    </div>
+    <form class="qrcode-form" id="resource-form" action="{{ url_for('inserir_recurso') }}" method="post">
+    <label for="qr-code-result">Código:</label>
+    <input type="text" id="qr-code-result" name="qr_code_result" readonly>
+    <label for="nome_recurso">Nome do recurso:</label>
+    <input type="text" id="nome_recurso" name="nome_recurso" readonly>
+    <button type="submit">Inserir Recurso</button>
+</form>
+
+<script>
+    document.getElementById('start-scanner').onclick = function() {
+        document.getElementById('reader').style.display = 'block';
+        scanner = new Html5QrcodeScanner('reader', { qrbox: 250, fps: 10 });
+
+        scanner.render(function success(result) {
+            // Preenche o campo do código QR com o resultado do scan
+            document.getElementById('qr-code-result').value = result;
+            // Parar o scanner
+            scanner.clear().then(() => {
+                document.getElementById('reader').style.display = 'none';
+                // Faz a requisição para buscar o nome do recurso
+                fetch('/obter-nome-recurso/' + encodeURIComponent(result))
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erro ao buscar nome do recurso');
+                        }
+                        return response.json(); // Transforma a resposta em um objeto JSON.
+                    })
+                    .then(data => {
+                        // Insere apenas o valor associado à chave 'nome_recurso' no campo.
+                        document.getElementById('nome_recurso').value = data.nome_recurso;
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                    });
+            }).catch(error => {
+                console.error(`Erro ao parar o scanner: ${error}`);
+            });
+        }, function error(err) {
+            console.error(err);
+        });
+    };
+</script>
+
+</body>
+</html>

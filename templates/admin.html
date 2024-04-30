@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial do Administrador</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body>
+    <div class="logo-container">
+        <img src="../static/images/logo.png">
+    </div>
+    <div class="welcome-container">
+        <h1>Bem-Vindo(a), {{ nome }}!</h1>
+        <div class="botoes-container">
+            <button onclick="window.location.href='/funcionarios'">Funcionários</button>
+            <button onclick="window.location.href='/recursos'">Recursos</button>
+            <button onclick="window.location.href='/u_recursos'">Utilização dos Recursos</button>
+            <button onclick="window.location.href='/admin_permissoes'">Permissões</button>
+        </div>
+    </div>
+</body>
+</html>

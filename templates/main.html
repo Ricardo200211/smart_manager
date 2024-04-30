@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento - Permissões e QRCode</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+    <div class="logo-container">
+        <img src="../static/images/logo.png">
+    </div>
+    <div class="welcome-container">
+        <h1>Bem-Vindo(a), {{ nome }}</h1>
+        <button id="scan-qrcode" onclick="window.location.href='/qrcode'">Ler QRCode</button>
+        <button id="manage-permissions" onclick="window.location.href='/permissoes'">Permissões</button>
+    </div>
+</body>
+</html>

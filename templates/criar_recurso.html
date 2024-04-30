@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Recurso</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='criar_funcionario.css') }}">
+</head>
+<body>
+    <div class="main-container">
+        <div class="logo-container">
+            <img src="../static/images/logo.png" alt="Logo">
+        </div>
+        <div class="login-container">
+            <h1>Criar Recurso</h1>
+            <form action="/criar_recurso" method="post">
+                <div class="form-group">
+                    <label for="nome">Nome:</label>
+                    <input type="text" id="nome" name="nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="desc">Descrição:</label>
+                    <input type="desc" id="desc" name="desc">
+                </div>
+                <button type="submit">Criar recurso</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utilização dos recursos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='utilizacao_recursos.css') }}">
+</head>
+<body>
+    <div class="logo-container">
+        <img src="../static/images/logo.png" alt="Logo">
+    </div>
+    <div class="main-content">
+        <h1>Utilização dos recursos</h1>
+        <input type="text" id="searchInput" placeholder="Pesquisar por funcionário, recurso ou data..." onkeyup="filterTable()">
+        <table id="resourceTable">
+            <thead>
+                <tr>
+                    <th>Funcionário</th>
+                    <th>Recurso</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u_recurso in u_recursos %}
+                <tr>
+                    <td>{{ u_recurso.funcionario }}</td>
+                    <td>{{ u_recurso.recurso }}</td>
+                    <td>{{ u_recurso.data }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function filterTable() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("resourceTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 1; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td");
+                var showRow = false;
+                for (var j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            showRow = true;
+                            break;
+                        }
+                    }
+                }
+                tr[i].style.display = showRow ? "" : "none";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funcionários</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='funcionarios.css') }}">
+</head>
+<body>
+    <div class="logo-container">
+        <img src="../static/images/logo.png" alt="Logo">
+    </div>
+    <div class="main-content">
+        <h1>Funcionários</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Cargo</th>
+                    <th>Ativo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for funcionario in funcionarios %}
+                <tr data-href="/alterar_funcionario?id={{ funcionario.id }}">
+                    <td>{{ funcionario.id }}</td>
+                    <td>{{ funcionario.nome }}</td>
+                    <td>{{ funcionario.email }}</td>
+                    <td>{{ funcionario.cargo }}</td>
+                    {%if funcionario.ativo == '1'%}
+                    <td>Sim</td>
+                    {%else%}
+                    <td>Não</td>
+                    {%endif%}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="button-container">
+            <button onclick="window.location.href='/abrir_criar_funcionario'" class="button">Criar Funcionário</button>
+        </div>
+    </div>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    var rows = document.querySelectorAll("table tr[data-href]");
+    rows.forEach(function(row) {
+        row.addEventListener("click", function() {
+            window.location.href = this.dataset.href;
+        });
+    });
+});
+</script>
+
+</html>
