@@ -298,7 +298,7 @@ def criar_funcionario():
     try:
         conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
         cursor = conexao.cursor()
-        query = "INSERT INTO funcionario VALUES (%s, %s, %s, %s)"
+        query = "INSERT INTO funcionario(id, nome, email, pass) VALUES (%s, %s, %s, %s)"
         cursor.execute(query, (id, nome, email, passwd))
         if tipo == 'funcionario':
             query = "INSERT INTO fun_utilizador_recursos (cargo, id_funcionario) VALUES (%s, %s)"
@@ -329,7 +329,7 @@ def criar_recurso():
     try:
         conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
         cursor = conexao.cursor()
-        query = "INSERT INTO recurso VALUES (%s, %s, %s)"
+        query = "INSERT INTO recurso(id, nome, descricao) VALUES (%s, %s, %s)"
         cursor.execute(query, (id, nome, desc))
         conexao.commit()
         return redirect(url_for('admin_recursos'))
@@ -409,16 +409,46 @@ def alterar_funcionario():
     conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
     try:
         with conexao.cursor(dictionary=True) as cursor:
-            sql = "SELECT * FROM view_funcionarios_cargos WHERE funcionario_id = %s"
-            cursor.execute(sql, (funcionario_id,))
+            query = "SELECT * FROM view_funcionarios_cargos WHERE funcionario_id = %s"
+            cursor.execute(query, (funcionario_id,))
             funcionario = cursor.fetchone()
             if funcionario:
                 return render_template_string(open('templates/alterar_funcionario.html', encoding='utf-8').read(), funcionario=funcionario)
     except Exception as e:
-        print(e)
         return "Erro ao conectar com a base de dados"
     finally:
         conexao.close()
 
+
+@app.route('/alterar_funcionario_bd',  methods=['POST'])
+def alterar_funcionario_bd():
+    id = request.form.get('id')
+    email = request.form.get('email')
+    nome = request.form.get('nome')
+    cargo = request.form.get('cargo')
+    status = request.form.get('status')
+    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    if conexao:
+        try:
+            cursor = conexao.cursor()
+            query = "update funcionario set " \
+                    "nome = %s, " \
+                    "email = %s, " \
+                    "is_active = %s " \
+                    "where id = %s"
+            cursor.execute(query, (nome, email, status, id))
+            conexao.commit()
+            query = "update fun_utilizador_recursos set " \
+                    "cargo = %s " \
+                    "where id_funcionario = %s"
+            cursor.execute(query, (cargo, id))
+            conexao.commit()
+            return redirect(url_for("funcionarios"))
+        except Exception as e:
+            print(e)
+            return "Erro ao conectar com a base de dados"
+        finally:
+            conexao.close()
+
 if __name__ == '__main__':
-    app.run(ssl_context='adhoc', debug=True, host=ip, port=5000)
+    app.run(debug=True, host=ip, port=5000)

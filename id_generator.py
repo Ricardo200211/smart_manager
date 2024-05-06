@@ -11,7 +11,7 @@ def get_last_index(tipo):
         try:
             cursor = conexao.cursor()
             query = f"SELECT id FROM {tipo} ORDER BY id DESC LIMIT 1"
-            cursor.execute(query, (tipo,))
+            cursor.execute(query)
             result = cursor.fetchone()
             if result:
                 last_id = result[0]
@@ -66,3 +66,4 @@ class ResourceIDGenerator:
         random_sequence = self.generate_random_sequence()
         resource_id = f"R{name_prefix}{hash_part}{random_sequence}"
         return resource_id
+
