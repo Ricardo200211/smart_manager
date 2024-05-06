@@ -4,6 +4,7 @@ import connect_BD
 import socket
 import id_generator
 import hash_parser
+from main import app as application
 
 app = Flask(__name__)
 id_utilizador = ""
@@ -449,6 +450,7 @@ def alterar_funcionario_bd():
             return "Erro ao conectar com a base de dados"
         finally:
             conexao.close()
+
 
 if __name__ == '__main__':
     app.run(debug=True, host=ip, port=5000)
