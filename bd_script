@@ -132,15 +132,18 @@ SELECT
     f.id AS funcionario_id,
     f.nome AS funcionario_nome,
     f.email AS funcionario_email,
-    fur.cargo AS funcionario_cargo,
     CASE
-        WHEN a.id IS NOT NULL THEN 'Admin'
+        WHEN a.id_funcionario IS NOT NULL THEN 'Admin'
+        ELSE fur.cargo
+    END AS funcionario_cargo,
+    CASE
+        WHEN a.id_funcionario IS NOT NULL THEN 'Admin'
         ELSE 'Funcionário'
     END AS tipo_funcionario,
-    f.is_active AS funcionario_ativo  -- Adiciona esta linha para mostrar o status ativo/inativo
+    f.is_active AS funcionario_ativo
 FROM
     funcionario f
-JOIN
+LEFT JOIN
     fun_utilizador_recursos fur ON f.id = fur.id_funcionario
 LEFT JOIN
     administrador a ON f.id = a.id_funcionario;
