@@ -1,0 +1,2 @@
+Opções +ExecCGI
+AddHandler main.py
