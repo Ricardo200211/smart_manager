@@ -1,10 +1,10 @@
 from datetime import datetime
 from flask import Flask, request, render_template_string, redirect, url_for, jsonify
 import connect_BD
-import socket
+import socketsdd
 import id_generator
 import hash_parser
-from main import app as application
+
 
 app = Flask(__name__)
 id_utilizador = ""
