@@ -1,7 +1,15 @@
-from flask import Flask, render_template_string, redirect, url_for, request
+from datetime import datetime
+from flask import Flask, request, render_template_string, redirect, url_for, jsonify
 import connect_BD
+import id_generator
 import hash_parser
+
+
 app = Flask(__name__)
+id_utilizador = ""
+nome_utilizador = ""
+id_admin = 0
+id_funcionario = 0
 
 @app.route('/')
 def index():
@@ -45,5 +53,71 @@ def login():
     else:
         mensagem_erro = "Erro na conexão com a base de dados"
         return render_template_string(open('templates/login.html', encoding='utf-8').read(), mensagem_erro=mensagem_erro)
+
+
+@app.route('/main.html')
+def home():
+    return render_template_string(open('templates/main.html', encoding='utf-8').read(), nome = nome_utilizador)
+
+@app.route('/admin.html')
+def admin():
+    return render_template_string(open('templates/admin.html', encoding='utf-8').read(), nome = nome_utilizador)
+
+
+@app.route('/btn_qrcode', methods=['GET', 'POST'])
+def btn_qrcode():
+    if request.method == 'POST':
+        return redirect('/qrcode')
+    return render_template_string(open('templates/main.html', encoding='utf-8').read())
+
+
+@app.route('/inserir_recurso', methods=['POST'])
+def inserir_recurso():
+    qr_code_result = request.form['qr_code_result']
+    data = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    if conexao:
+        cursor = conexao.cursor()
+        query = "INSERT INTO utilizacao_recurso(data, id_fun_utilizador_recursos, id_recurso) VALUES (%s, %s, %s)"
+        valores = (data, id_utilizador, qr_code_result)
+        try:
+            cursor.execute(query, valores)
+            conexao.commit()
+            return redirect(url_for('home'))
+        except Exception as e:
+            conexao.rollback()
+            print(e)
+            return "Erro ao inserir reserva na base de dados."
+        finally:
+            cursor.close()
+            conexao.close()
+    else:
+        return "Erro na conexão com a base de dados."
+
+
+
+@app.route('/obter-nome-recurso/<codigo_qr>')
+def obter_nome_recurso1(codigo_qr):
+    try:
+        conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+        cursor = conexao.cursor()
+        query = "SELECT nome FROM recurso WHERE id = %s"
+        cursor.execute(query, (codigo_qr,))
+        resultado = cursor.fetchone()
+        cursor.close()
+        conexao.close()
+        if resultado:
+            return jsonify(nome_recurso=resultado[0])
+        else:
+            return jsonify(erro="Recurso não encontrado"), 404
+    except Exception as e:
+        return jsonify(erro="Erro na conexão com a BD: " + str(e)), 500
+
+
+@app.route('/qrcode')
+def qrcode():
+    return render_template_string(open('templates/qrcode.html', encoding='utf-8').read())
+
+
 if __name__ == '__main__':
     app.run(port=5000)
