@@ -1,7 +1,6 @@
 from datetime import datetime
 from flask import Flask, request, render_template_string, redirect, url_for, jsonify
 import connect_BD
-import socketsdd
 import id_generator
 import hash_parser
 
@@ -162,18 +161,6 @@ def solicitar_permissao():
     else:
         return "Erro na conexão com a base de dados."
 
-def obter_ip_interno():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        s.connect(("10.255.255.255", 1))
-        IP = s.getsockname()[0]
-    except Exception:
-        IP = "127.0.0.1"
-    finally:
-        s.close()
-    return IP
-
-ip = obter_ip_interno()
 
 @app.route('/funcionarios')
 def funcionarios():
@@ -453,4 +440,4 @@ def alterar_funcionario_bd():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host=ip, port=5000)
+    app.run(port=5000)
