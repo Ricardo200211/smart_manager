@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Recurso</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='alterar_recurso.css') }}">
+</head>
+<body>
+    <div class="main-container">
+        <div class="logo-container">
+            <img src="../static/images/logo.png" alt="Logo da Empresa">
+        </div>
+        <div class="login-container">
+            <h1>Editar Recurso</h1>
+            <form id="editForm" method="post" action="/alterar_recurso_bd">
+                <div class="form-group">
+                    <label for="id">ID:</label>
+                    <input type="text" id="id" name="id" value="{{recurso['id']}}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="nome">Nome:</label>
+                    <input type="text" id="nome" name="nome" value="{{recurso['nome']}}">
+                </div>
+                <div class="form-group">
+                    <label for="desc">Email:</label>
+                    <input type="desc" id="desc" name="desc" value="{{recurso['descricao']}}">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status:</label>
+                    <div class="select-container">
+                    <select id="status" name="status">
+                        <option value="1" {% if recurso['is_active'] == 1 %}selected{% endif %}> Ativo </option>
+                        <option value="0" {% if recurso['is_active'] == 0 %}selected{% endif %}> Inativo </option>
+                    </select>
+                    </div>
+                </div>
+                <button type="submit">Salvar alterações</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
