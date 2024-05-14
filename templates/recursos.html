@@ -22,7 +22,7 @@
             </thead>
             <tbody>
                 {% for recurso in recursos %}
-                <tr>
+                <tr data-href="/alterar_recurso?id={{ recurso.id }}">
                     <td>{{ recurso.id }}</td>
                     <td>{{ recurso.nome }}</td>
                     <td>{{ recurso.descricao }}</td>
@@ -35,4 +35,14 @@
         </div>
     </div>
 </body>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    var rows = document.querySelectorAll("table tr[data-href]");
+    rows.forEach(function(row) {
+        row.addEventListener("click", function() {
+            window.location.href = this.dataset.href;
+        });
+    });
+});
+</script>
 </html>

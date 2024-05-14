@@ -438,7 +438,47 @@ def alterar_funcionario_bd():
         finally:
             conexao.close()
 
+@app.route('/alterar_recurso')
+def alterar_recurso():
+    recurso_id = request.args.get('id')
+    conexao = connect_BD.conectar_mysql()
+    try:
+        with conexao.cursor(dictionary=True) as cursor:
+            query = "SELECT * FROM recurso WHERE id = %s"
+            cursor.execute(query, (recurso_id,))
+            recurso = cursor.fetchone()
+            if recurso:
+                return render_template_string(open('templates/alterar_recurso.html', encoding='utf-8').read(), recurso=recurso)
+    except Exception as e:
+        print(e)
+        return "Erro ao conectar com a base de dados"
+    finally:
+        conexao.close()
 
+
+@app.route('/alterar_recurso_bd',  methods=['POST'])
+def alterar_recurso_bd():
+    id = request.form.get('id')
+    nome = request.form.get('nome')
+    desc = request.form.get('desc')
+    status = request.form.get('status')
+    conexao = connect_BD.conectar_mysql()
+    if conexao:
+        try:
+            cursor = conexao.cursor()
+            query = "update recurso set " \
+                    "nome = %s, " \
+                    "descricao = %s, " \
+                    "is_active = %s " \
+                    "where id = %s"
+            cursor.execute(query, (nome, desc, status, id))
+            conexao.commit()
+            return redirect(url_for("admin_recursos"))
+        except Exception as e:
+            print(e)
+            return "Erro ao conectar com a base de dados"
+        finally:
+            conexao.close()
 
 if __name__ == '__main__':
     app.run(port=5000)

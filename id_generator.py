@@ -6,7 +6,7 @@ import connect_BD
 
 
 def get_last_index(tipo):
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     if conexao:
         try:
             cursor = conexao.cursor()

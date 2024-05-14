@@ -70,3 +70,11 @@ th {
 .button:hover {
     background-color: #0056b3;
 }
+
+tr[data-href] {
+    cursor: pointer;
+}
+
+tr[data-href]:hover {
+    background-color: #cccccc;
+}
