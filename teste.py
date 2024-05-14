@@ -20,7 +20,7 @@ def login():
     user = request.form['user']
     passwd_original = request.form['password']
     passwd = hash_parser.parse_hash(passwd_original)
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     if conexao:
         try:
             with conexao.cursor() as cursor:
@@ -75,7 +75,7 @@ def btn_qrcode():
 def inserir_recurso():
     qr_code_result = request.form['qr_code_result']
     data = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     if conexao:
         cursor = conexao.cursor()
         query = "INSERT INTO utilizacao_recurso(data, id_fun_utilizador_recursos, id_recurso) VALUES (%s, %s, %s)"
@@ -99,7 +99,7 @@ def inserir_recurso():
 @app.route('/obter-nome-recurso/<codigo_qr>')
 def obter_nome_recurso1(codigo_qr):
     try:
-        conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+        conexao = connect_BD.conectar_mysql()
         cursor = conexao.cursor()
         query = "SELECT nome FROM recurso WHERE id = %s"
         cursor.execute(query, (codigo_qr,))
@@ -121,7 +121,7 @@ def qrcode():
 
 @app.route('/permissoes')
 def permissoes():
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     if conexao:
         try:
             cursor = conexao.cursor()
@@ -144,7 +144,7 @@ def solicitar_permissao():
     id_utilizador_atual = id_utilizador
     data_atual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     if conexao:
         try:
             cursor = conexao.cursor()
@@ -164,7 +164,7 @@ def solicitar_permissao():
 
 @app.route('/funcionarios')
 def funcionarios():
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     if conexao:
         try:
             cursor = conexao.cursor()
@@ -185,7 +185,7 @@ def funcionarios():
 
 @app.route('/recursos')
 def admin_recursos():
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     if conexao:
         try:
             cursor = conexao.cursor()
@@ -207,7 +207,7 @@ def admin_recursos():
 
 @app.route('/u_recursos')
 def admin_u_recursos():
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     if conexao:
         try:
             cursor = conexao.cursor()
@@ -228,7 +228,7 @@ def admin_u_recursos():
 
 @app.route('/admin_permissoes')
 def admin_permissoes():
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     if conexao:
         try:
             cursor = conexao.cursor()
@@ -251,7 +251,7 @@ def admin_permissoes():
 @app.route('/permissoes_funcionario_admin')
 def permissoes_funcionario_admin():
     funcionario_id = request.args.get('id')
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     if conexao:
         try:
             cursor = conexao.cursor()
@@ -284,7 +284,7 @@ def criar_funcionario():
     passwd_default = "12345"
     passwd = hash_parser.parse_hash(passwd_default)
     try:
-        conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+        conexao = connect_BD.conectar_mysql()
         cursor = conexao.cursor()
         query = "INSERT INTO funcionario(id, nome, email, pass) VALUES (%s, %s, %s, %s)"
         cursor.execute(query, (id, nome, email, passwd))
@@ -315,7 +315,7 @@ def criar_recurso():
     generator = id_generator.ResourceIDGenerator()
     id = generator.generate_resource_id(nome)
     try:
-        conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+        conexao = connect_BD.conectar_mysql()
         cursor = conexao.cursor()
         query = "INSERT INTO recurso(id, nome, descricao) VALUES (%s, %s, %s)"
         cursor.execute(query, (id, nome, desc))
@@ -332,7 +332,7 @@ def criar_recurso():
 def retirar_permissao():
     id_recurso = request.form['id_recurso']
     id_funcionario = request.form['id_funcionario']
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     if conexao:
         try:
             cursor = conexao.cursor()
@@ -347,7 +347,7 @@ def adicionar_permissao():
     id_recurso = request.form['id_recurso']
     id_funcionario = request.form['id_funcionario']
     data_atual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     if conexao:
         try:
             cursor = conexao.cursor()
@@ -365,7 +365,7 @@ def aceitar_permissao():
     id_funcionario = request.form['id_funcionario']
     action = request.form['action']
     data_atual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     if conexao:
         try:
             if action == '1':
@@ -394,7 +394,7 @@ def aceitar_permissao():
 @app.route('/alterar_funcionario')
 def alterar_funcionario():
     funcionario_id = request.args.get('id')
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     try:
         with conexao.cursor(dictionary=True) as cursor:
             query = "SELECT * FROM view_funcionarios_cargos WHERE funcionario_id = %s"
@@ -415,7 +415,7 @@ def alterar_funcionario_bd():
     nome = request.form.get('nome')
     cargo = request.form.get('cargo')
     status = request.form.get('status')
-    conexao = connect_BD.conectar_mysql('localhost', 'root', 'roots', 'smartmanager')
+    conexao = connect_BD.conectar_mysql()
     if conexao:
         try:
             cursor = conexao.cursor()

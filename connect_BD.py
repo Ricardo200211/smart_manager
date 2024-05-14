@@ -1,13 +1,13 @@
 import mysql.connector
 from mysql.connector import Error
 
-def conectar_mysql(servidor, user, password, bd):
+def conectar_mysql():
     try:
         conexao = mysql.connector.connect(
-            host=servidor,
-            user=user,
-            password=password,
-            database=bd
+            host="smartmanager.mysql.database.azure.com",
+            user="ricardo",
+            password="Martins16",
+            database="smartmanager"
         )
         if conexao.is_connected():
             cursor = conexao.cursor()
