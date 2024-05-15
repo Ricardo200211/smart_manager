@@ -1,19 +1,23 @@
+import os
 from datetime import datetime
-from flask import Flask, request, render_template_string, redirect, url_for, jsonify
+from flask import Flask, request, render_template_string, redirect, url_for, jsonify, session, flash
 import connect_BD
 import id_generator
 import hash_parser
 
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
 id_utilizador = ""
 nome_utilizador = ""
 id_admin = 0
 id_funcionario = 0
 
+
 @app.route('/')
 def index():
     return render_template_string(open('templates/login.html', encoding='utf-8').read())
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -57,11 +61,75 @@ def login():
 
 @app.route('/main.html')
 def home():
+    session['funcionario'] = id_funcionario
     return render_template_string(open('templates/main.html', encoding='utf-8').read(), nome = nome_utilizador)
+
 
 @app.route('/admin.html')
 def admin():
+    session['admin'] = id_admin
     return render_template_string(open('templates/admin.html', encoding='utf-8').read(), nome = nome_utilizador)
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/')
+
+
+@app.route('/abrir_perfil')
+def abrir_perfil():
+    conexao = connect_BD.conectar_mysql()
+    try:
+        with conexao.cursor(dictionary=True) as cursor:
+            query = "SELECT * FROM view_funcionarios_cargos WHERE funcionario_id = %s"
+            cursor.execute(query, (session['funcionario'],))
+            funcionario = cursor.fetchone()
+            if funcionario:
+                return render_template_string(open('templates/perfil.html', encoding='utf-8').read(), funcionario=funcionario)
+    except Exception as e:
+        return "Erro ao conectar com a base de dados"
+    finally:
+        conexao.close()
+
+
+@app.route('/alterar_passwd', methods=['POST'])
+def alterar_passwd():
+    old_passwd = hash_parser.parse_hash(request.form['old_passwd'])
+    new_passwd = hash_parser.parse_hash(request.form['new_passwd'])
+    newpasswd_2 = hash_parser.parse_hash(request.form['newpasswd_2'])
+
+    id_funcionario = session['funcionario']
+
+    if not old_passwd or not new_passwd or not newpasswd_2:
+        flash("Preencha todos os campos.", "error")
+        return redirect(url_for('abrir_perfil'))
+
+    if new_passwd != newpasswd_2:
+        flash("As palavras passes novas não são iguais.", "error")
+        return redirect(url_for('abrir_perfil'))
+
+    try:
+        conexao = connect_BD.conectar_mysql()
+        if conexao:
+            with conexao.cursor() as cursor:
+                # Verify the old password
+                cursor.execute("SELECT * FROM funcionario WHERE ID = %s and pass = %s", (id_funcionario, old_passwd))
+                resultado = cursor.fetchone()
+
+                if resultado:
+                    # Update the password
+                    cursor.execute("UPDATE funcionario SET pass = %s WHERE ID = %s", (new_passwd, id_funcionario))
+                    conexao.commit()
+                    flash("A palavra passe foi alterada com sucesso.", "success")
+                else:
+                    flash("A palavra passe antiga não está correta.", "error")
+    except Exception as e:
+        flash(f"Ocorreu um erro", "error")
+    finally:
+        conexao.close()
+
+    return redirect(url_for('abrir_perfil'))
 
 
 @app.route('/btn_qrcode', methods=['GET', 'POST'])
@@ -93,7 +161,6 @@ def inserir_recurso():
             conexao.close()
     else:
         return "Erro na conexão com a base de dados."
-
 
 
 @app.route('/obter-nome-recurso/<codigo_qr>')
@@ -226,6 +293,7 @@ def admin_u_recursos():
     else:
         return "Erro na conexão com a base de dados"
 
+
 @app.route('/admin_permissoes')
 def admin_permissoes():
     conexao = connect_BD.conectar_mysql()
@@ -251,6 +319,7 @@ def admin_permissoes():
 @app.route('/permissoes_funcionario_admin')
 def permissoes_funcionario_admin():
     funcionario_id = request.args.get('id')
+    funcionario_nome = request.args.get('nome')
     conexao = connect_BD.conectar_mysql()
     if conexao:
         try:
@@ -259,7 +328,7 @@ def permissoes_funcionario_admin():
             cursor.execute(query, (funcionario_id,))
             permissoes = cursor.fetchall()
             permissoes_lista = [{'id_r': permissao[2],'nome_r': permissao[3], 'permissao': permissao[4], 'pedido': permissao[5]} for permissao in permissoes]
-            return render_template_string(open('templates/permissoes_funcionario_admin.html', encoding='utf-8').read(), permissoes=permissoes_lista, nome=nome_utilizador, id=funcionario_id)
+            return render_template_string(open('templates/permissoes_funcionario_admin.html', encoding='utf-8').read(), permissoes=permissoes_lista, nome=funcionario_nome, id=funcionario_id)
         except Exception as e:
             return f"Erro ao buscar permissões: {e}"
         finally:
@@ -342,6 +411,7 @@ def retirar_permissao():
         finally:
             conexao.close()
 
+
 @app.route('/adicionar_permissao', methods=['POST'])
 def adicionar_permissao():
     id_recurso = request.form['id_recurso']
@@ -355,6 +425,8 @@ def adicionar_permissao():
                            "values (%s, %s, %s, %s)", (data_atual, id_funcionario, id_admin, id_recurso))
             conexao.commit()
             return redirect('/permissoes_funcionario_admin?id=' + id_funcionario)
+        except Exception as e:
+            print(e)
         finally:
             conexao.close()
 
@@ -438,6 +510,7 @@ def alterar_funcionario_bd():
         finally:
             conexao.close()
 
+
 @app.route('/alterar_recurso')
 def alterar_recurso():
     recurso_id = request.args.get('id')
@@ -480,5 +553,6 @@ def alterar_recurso_bd():
         finally:
             conexao.close()
 
+
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(host='0.0.0.0', port=5000, ssl_context='adhoc')

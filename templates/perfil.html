@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='perfil.css') }}">
+</head>
+<body>
+    <div class="voltar-container">
+        <a href="/main.html"><img src="../static/images/back.png" alt="Back"></a>
+    </div>
+    <div class="main-container">
+        <div class="logo-container">
+            <img src="../static/images/logo.png" alt="Logo da Empresa">
+        </div>
+        <div class="login-container">
+            <h1>Perfil</h1>
+
+            <div class="form-group">
+                <label for="id">ID:</label>
+                <input type="text" id="id" name="id" value="{{ funcionario['funcionario_id'] }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" value="{{ funcionario['funcionario_nome'] }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="{{ funcionario['funcionario_email'] }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="cargo">Cargo:</label>
+                <input type="text" id="cargo" name="cargo" value="{{ funcionario['funcionario_cargo'] }}" readonly>
+            </div>
+            <form action="/alterar_passwd" method="post">
+                <div class="form-group">
+                    <label for="old_passwd">Palavra-passe antiga:</label>
+                    <input type="password" id="old_passwd" name="old_passwd">
+                </div>
+                <div class="form-group">
+                    <label for="new_passwd">Palavra-passe nova:</label>
+                    <input type="password" id="new_passwd" name="new_passwd">
+                </div>
+                <div class="form-group">
+                    <label for="newpasswd_2">Repita palavra-passe nova:</label>
+                    <input type="password" id="newpasswd_2" name="newpasswd_2">
+                </div>
+                <button type="submit">Alterar Palavra-Passe</button>
+            </form>
+
+            <!-- Bloco de mensagens flash abaixo do formulário -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            <button onclick="window.location.href='/logout'">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        // Função para ocultar as mensagens flash após um tempo
+        setTimeout(function() {
+            var flashes = document.querySelectorAll('.flashes li');
+            flashes.forEach(function(flash) {
+                flash.style.display = 'none';
+            });
+        }, 5000);  // As mensagens desaparecerão após 5 segundos
+    </script>
+</body>
+</html>

@@ -4,9 +4,9 @@ from mysql.connector import Error
 def conectar_mysql():
     try:
         conexao = mysql.connector.connect(
-            host="smartmanager.mysql.database.azure.com",
-            user="ricardo",
-            password="Martins16",
+            host="localhost",
+            user="root",
+            password="roots",
             database="smartmanager"
         )
         if conexao.is_connected():
