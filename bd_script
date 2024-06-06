@@ -62,20 +62,6 @@ foreign key (id_fun_utilizador_recursos) references fun_utilizador_recursos(id_f
 foreign key (id_recurso) references recurso(id)
 );
 
-insert into funcionario(id, nome, email, pass) values ("1","Ricardo","ricardo@gmail.com","5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5");
-insert into funcionario(id, nome, email, pass) values ("2","Ricardo_admin","ricardo_admin@gmail.com","5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5");
-insert into funcionario(id, nome, email, pass) values ("fric240007","Ricardo Martins","ricardo.martins@gmail.com","5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5");
-insert into funcionario(id, nome, email, pass) values ("3","Pedro","pedro@gmail.com","5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5");
-insert into fun_utilizador_recursos values (1,"funcionario","1");
-insert into fun_utilizador_recursos(cargo, id_funcionario) values ("funcionario","3");
-INSERT INTO recurso(id, nome, descricao) VALUES( '1','maquina x', 'maquina de x');
-INSERT INTO recurso(id, nome, descricao) VALUES('2','maquina y', 'maquina de y');
-INSERT INTO recurso(id, nome, descricao) VALUES('3','maquina xyz cortadora max 2000 ultra', 'maquina de xyz');
-insert into administrador values('1', '2');
-insert into administrador values('2', 'fric240007');
-insert into permissao values(1 ,'2024-03-28', '1', '1', '1');
-
-
 CREATE VIEW view_permissoes_funcionario AS
 SELECT
     f.id AS id_funcionario,
@@ -133,21 +119,22 @@ SELECT
     f.nome AS funcionario_nome,
     f.email AS funcionario_email,
     CASE
-        WHEN a.id_funcionario IS NOT NULL THEN 'Admin'
+        WHEN a.id IS NOT NULL THEN 'Administrador'
         ELSE fur.cargo
     END AS funcionario_cargo,
     CASE
-        WHEN a.id_funcionario IS NOT NULL THEN 'Admin'
+        WHEN a.id IS NOT NULL THEN 'Admin'
         ELSE 'Funcionário'
     END AS tipo_funcionario,
     f.is_active AS funcionario_ativo
 FROM
     funcionario f
 LEFT JOIN
-    fun_utilizador_recursos fur ON f.id = fur.id_funcionario
+    administrador a ON f.id = a.id_funcionario
 LEFT JOIN
-    administrador a ON f.id = a.id_funcionario;
-
+    fun_utilizador_recursos fur ON f.id = fur.id_funcionario
+WHERE
+    f.is_active = '1';
 
 
 SELECT * FROM view_funcionarios_cargos;
@@ -167,11 +154,6 @@ JOIN
 SELECT * FROM view_utilizacao_recursos;
 
 
-
-
-
-
-
 CREATE VIEW view_resumo_funcionarios AS
 SELECT
     f.id AS funcionario_id,
@@ -185,10 +167,12 @@ JOIN
 LEFT JOIN
     permissao p ON f.id = p.id_funcionario
 LEFT JOIN
-    pedidos_permissao pp ON f.id = pp.id_funcionario
+    pedidos_permissao pp ON f.id = pp.id_funcionario AND
+    (pp.resposta IS NULL OR pp.data_resposta IS NULL)
 WHERE
     f.is_active = 1
 GROUP BY
     f.id, f.nome;
 
 select * from view_resumo_funcionarios
+
